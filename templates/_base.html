@@ -1,0 +1,180 @@
+{% load static %}
+<!doctype html>
+<html lang="ja">
+    <!-- *HEAD  -->
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- *CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    {% block extra_css %}{% endblock extra_css %}
+    <!-- */CSS -->
+
+    <!-- *TITLE -->
+    <title>{% block title %}{% endblock title %}</title>
+    <!-- */TITLE -->
+    </head>
+    <!-- */HEAD  -->
+
+    <!-- *BODY -->
+    <body>
+        <div class="d-flex" style="min-height: 100vh;">
+
+            <!-- *NAV -->
+            <nav class="col-md-auto navbar navbar-expand-md navbar-dark bg-dark flex-column p-0">
+                <div class="collapse navbar-collapse flex-column mx-2">
+                    <ul class="navbar-nav flex-column">
+                        <li class="navbar-item mb-3"><a href="{% url 'game:home' %}" class="nav-link"><h2>Rating Duel</h2></a></li>
+                        <li class="navbar-item mb-1">
+                            <a href="#collapseGame" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-trophy"></i>&ThickSpace; 試合</a>
+                            <div class="collapse" id="collapseGame">
+                                <ul>
+                                    <li><a href="{% url 'game:league_list' %}" class="nav-link">リーグ一覧</a></li>
+                                    <li><a href="" class="nav-link">チャット一覧</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="navbar-item mb-1">
+                            <a href="#collapseData" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
+                            <div class="collapse" id="collapseData">
+                                <ul>
+                                    <li><a href="" class="nav-link">順位表</a></li>
+                                    <li><a href="" class="nav-link">自分の戦績</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="navbar-item mb-1">
+                            <a href="#collapseRate" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-graph-up-arrow"></i>&ThickSpace; レート戦</a>
+                            <div class="collapse" id="collapseRate">
+                                <ul>
+                                    <li><a href="" class="nav-link">対戦ページ</a></li>
+                                    <li><a href="" class="nav-link">チャット一覧</a></li>
+                                    <li><a href="" class="nav-link">結果一覧</a></li>
+                                    <li><a href="" class="nav-link">ランキング</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- *OFF CANVAS -->
+                <div class="offcanvas offcanvas-start w-75 bg-dark" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title nav-link" id="offcanvasExampleLabel"><a href="{% url 'game:home' %}" class="text-light" style="text-decoration: none;">Rating Duel</a></h5>
+                        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <ul class="px-0 list-unstyled">
+                            <li class="navbar-item mb-1">
+                                <a href="#offcanvasGame" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-trophy"></i>&ThickSpace; 試合</a>
+                                <div class="collapse" id="offcanvasGame">
+                                    <ul>
+                                        <li><a href="{% url 'game:league_list' %}" class="nav-link text-light">リーグ一覧</a></li>
+                                        <li><a href="" class="nav-link text-light">試合登録</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="navbar-item mb-1">
+                                <a href="#offcanvasData" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
+                                <div class="collapse" id="offcanvasData">
+                                    <ul>
+                                        <li><a href="" class="nav-link text-light">順位表</a></li>
+                                        <li><a href="" class="nav-link text-light">相性表</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="navbar-item mb-1">
+                                <a href="#offcanvasRate" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-graph-up-arrow"></i>&ThickSpace; レート戦</a>
+                                <div class="collapse" id="offcanvasRate">
+                                    <ul>
+                                        <li><a href="" class="nav-link text-light">対戦ページ</a></li>
+                                        <li><a href="" class="nav-link text-light">チャット一覧</a></li>
+                                        <li><a href="" class="nav-link text-light">結果一覧</a></li>
+                                        <li><a href="" class="nav-link text-light">ランキング</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- */OFFCANVAS -->
+            </nav>
+            <!-- */NAV -->
+
+            <div class="flex-fill">
+                <!-- *HEADER -->
+                <header class="d-flex bg-primary justify-content-between p-2">
+                    <a id="offcanvas_link" class="btn btn-primary collapse" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+                        <i class="bi bi-list"></i>
+                    </a>
+                    <div class="flex-nowrap gx-1 col-auto">
+                        <form action="" method="get" class=" input-group collapse" id="header_search_form">
+                            <input type="search" name="player_name" placeholder="プレイヤー名" value="{{ search_key }}" class="form-control">
+                            <button type="submit" class="input-group-text btn btn-dark"><i class="bi bi-search"></i>&ThickSpace;検索</button>
+                        </form>
+                    </div>
+                    <div class="dropdown">
+                        <button class="col-auto btn btn-primary" id="dropdownUserMenu" data-bs-toggle="dropdown"><i class="bi bi-caret-down-fill"></i>&ThickSpace;
+                            {% if user.is_authenticated %}
+                                {{ user.username }}&ThickSpace;
+                                {% if user.socialaccount_set.all.0.get_avatar_url %}
+                                    <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" width="25px" height="25px" class="rounded-circle align-bottom">
+                                {% else %}
+                                    <i class="bi bi-person-lines-fill"></i>
+                                {% endif %}
+                            {% else %}
+                                Guest&ThickSpace;<i class="bi bi-person-lines-fill"></i>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            {% if user.is_authenticated %}
+                                <li><a href="" class="dropdown-item"><i class="bi bi-person-fill"></i>&ThickSpace;マイページ</a></li>
+                                <li><a href="" class="dropdown-item"><i class="bi bi-gear-fill"></i>&ThickSpace;設定</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a href="{% url 'account_logout' %}" class="dropdown-item"><i class="bi bi-door-closed-fill"></i>&ThickSpace;ログアウト</a></li>
+                            {% else %}
+                                <li><a href="{% url 'account_login' %}" class="dropdown-item"><i class="bi bi-door-open-fill"></i>&ThickSpace;ログイン</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a href="{% url 'account_signup' %}" class="dropdown-item"><i class="bi bi-person-plus-fill"></i>&ThickSpace;サインアップ</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </header>
+                <!-- */HEADER -->
+
+                <!-- *MAIN CONTENT -->
+                <div class="container-fluid my-3">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} p-1" role="alert">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                    {% block content %}{% endblock content %}
+                </div>
+                <!-- */MAIN CONTENT -->
+            </div>
+        </div>
+    <!-- *SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const offcanvas_link = document.getElementById('offcanvas_link');
+        const show_offcanvas_link = ()=>{
+            if(window.outerWidth < 768){
+                offcanvas_link.classList.add('show');
+            }
+            else{
+                offcanvas_link.classList.remove('show');
+            }
+        };
+        window.addEventListener('resize', show_offcanvas_link);
+        window.addEventListener('load', show_offcanvas_link);
+    </script>
+    {% block extra_js %}{% endblock extra_js %}
+    <!-- */SCRIPT -->
+    </body>
+    <!-- */BODY -->
+</html>

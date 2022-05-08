@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+
+
+{% block title %}
+    サインアップ
+{% endblock title %}
+
+
+{% block content %}
+    <form action="/accounts/discord/login/?process=login" method="post" class="mb-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary"><i class="bi bi-discord"></i>&ThickSpace;Discordアカウントを登録</button>
+    </form>
+
+    <h2 class="mb-3">Discordアカウントがない場合</h2>
+    <form action="" method="post" class="mb-3" id="signup_form">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_username" class="form-label">ユーザー名</label>
+            <input class="form-control" type="text" name="username" placeholder="ユーザー名" autocomplete="username" minlength="1" maxlength="150" required id="id_username">
+        </div>
+        <div class="mb-3">
+            <label for="id_password1" class="form-label">パスワード</label>
+            <input class="form-control" type="password" name="password1" placeholder="パスワード" autocomplete="new-password" required id="id_password1">
+        </div>
+        <div class="mb-3">
+            <label for="id_password2" class="form-label">パスワード(確認用)</label>
+            <input class="form-control" type="password" name="password2" placeholder="パスワード(確認用)" autocomplete="new-password" required id="id_password2">
+        </div>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </form>
+    <small class="text-muted">ログインは<a href="{% url 'account_login' %}">こちら</a></small>
+{% endblock content %}

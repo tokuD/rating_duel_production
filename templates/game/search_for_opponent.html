@@ -1,0 +1,74 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}
+    対戦相手を探す
+{% endblock title %}
+
+
+
+{% block content %}
+<div class="alert alert-info collapse p-1" id="failed_message">
+    <span>対戦相手が見つかりませんでした。</span>
+</div>
+<h2>対戦相手を探す</h2>
+<small class="text-muted" id="dp_display">
+    現在のdp : {{ result.dp }}
+</small>
+<form action="" method="post" class="my-3">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <label for="id_league" class="input-group-text">参加リーグ</label>
+        <select class="form-select"  id="id_league" name="league" disabled>
+            <option value="{{ league.pk }}">{{ league }}</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" id="search_for_opponent" type="submit">対戦相手を探す</button>
+</form>
+<p class="text-muted" id="matching_message"></p>
+<div class="spinner-border collapse mb-3" id="spinner" role="status">
+    <span class="visually-hidden">Loading...</span>
+</div>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/for_ajax_csrf.js' %}"></script>
+<script>
+
+    function search_for_opponent(){
+        $.ajax({
+            type: "post",
+            url: "{% url 'game:search_for_opponent_ajax' league_name %}",
+            dataType: "json",
+            data: {
+                'league_name': "{{ league_name }}",
+            },
+            success: function(data){
+                const is_success = data['is_success'];
+                const roomName = data['roomname'];
+                console.log(data['roomname']);
+                $("#matching_message").text("");
+                $("#spinner").removeClass('show');
+                if(!is_success){
+                    $("#failed_message").addClass('show');
+                }
+                else{
+                    window.location.pathname = 'game/' + "{{ league_name }}" + '/room/' + roomName + '/';
+                }
+            }
+        });
+    }
+
+    $("#search_for_opponent").click(function(e){
+        e.preventDefault();
+        $("#failed_message").removeClass('show');
+        $("#matching_message").text("対戦相手を探しています...");
+        $("#spinner").addClass('show');
+        search_for_opponent();
+    });
+</script>
+{% endblock extra_js %}
+
+

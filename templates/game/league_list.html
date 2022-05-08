@@ -1,0 +1,53 @@
+{% extends '_base.html' %}
+{% load game %}
+
+{% block title %}
+    参加中のリーグ一覧
+{% endblock title %}
+
+
+
+{% block content %}
+<div class="row gx-3">
+    {% for league in object_list %}
+    <div class="col-lg-6 col-xxl-4">
+        <div class="card text-center shadow mb-3">
+            <div class="card-body">
+                <h5 class="card-title text-danger">{{ league }}</h5>
+                <div class="card-text mb-3">
+                    {{ league.details|linebreaksbr }}
+                </div>
+                <a href="{% url 'game:search_for_opponent' league.name %}" class="btn btn-success mx-2">参加する</a>
+                <a href="" class="btn btn-info mx-2">順位表</a>
+            </div>
+            <div class="card-footer text-muted py-1">
+                <small>主催者：{{ league.host }}</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- *PAGINATION -->
+<nav class="d-flex justify-content-center">
+    <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a href="?{% url_replace request 'page' page_obj.previous_page_number %}" class="page-link">&laquo;</a></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active"><a href="" class="page-link">{{ num }}</a></li>
+            {% else %}
+                <li class="page-item"><a href="?{% url_replace request 'page' num %}" class="page-link">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a href="?{% url_replace request 'page' page_obj.next_page_number %}" class="page-link">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+<!-- */PAGINATION  -->
+
+{% endblock content %}

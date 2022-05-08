@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+{% load account socialaccount %}
+
+{% block title %}
+    ログイン
+{% endblock title %}
+
+
+{% block content %}
+
+    <form action="/accounts/discord/login/?process=login" method="post" class="mb-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary"><i class="bi bi-discord"></i>&ThickSpace;Discordアカウントでログイン</button>
+    </form>
+
+    <form action="/accounts/twitter/login/?process=login" method="post" class="mb-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary"><i class="bi bi-twitter"></i>&ThickSpace;Twitterアカウントでログイン</button>
+    </form>
+
+
+    <!-- <form action="/accounts/google/login/?process=login" method="post" class="mb-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary"><i class="bi bi-google"></i>&ThickSpace;Googleアカウントでログイン</button>
+    </form> -->
+
+
+    <h2 class="mb-3">Discordアカウントがない方</h2>
+    <form action="" method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_login" class="form-label">ユーザー名</label>
+            <input type="text" name="login" placeholder="ユーザー名" autocomplete="username" maxlength="150" required id="id_login" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="id_password" class="form-label">パスワード</label>
+            <input type="password" name="password" placeholder="パスワード" autocomplete="current-password" required id="id_password" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">ログイン</button>
+    </form>
+    <small class="text-muted">登録がまだの方は<a href="{% url 'account_signup' %}">こちら</a></small>
+
+{% endblock content %}

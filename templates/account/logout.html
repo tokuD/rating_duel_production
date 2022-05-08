@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+
+
+{% block title %}
+    ログアウト
+{% endblock title %}
+
+
+{% block content %}
+    <h2>ログアウトしますか？</h2>
+    <form action="" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">はい</button>
+    </form>
+{% endblock content %}

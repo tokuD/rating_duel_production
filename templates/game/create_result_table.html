@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+
+
+{% block title %}
+    参加登録
+{% endblock title %}
+
+
+{% block content %}
+    <h3>参加リーグ選択</h3>
+    <p>{{ league }}に参加しますか？</p>
+    <form action="" method="post">
+        {% csrf_token %}
+        <select class="form-select" id="id_league" name="league" hidden>
+            <option value="{{ league.pk }}">{{ league }}</option>
+        </select>
+        <button type="submit" class="btn btn-primary">参加</button>
+    </form>
+
+{% endblock content %}
