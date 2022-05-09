@@ -24,6 +24,7 @@
                     </div>
                     <a href="{% url 'game:search_for_opponent' league.name %}" class="btn btn-primary">参加する</a>
                     <a href="{% url 'game:ranking' league.name %}" class="btn btn-secondary">順位表</a>
+                    <a href="{% url 'game:result_list' league.name %}" class="btn btn-secondary">結果一覧</a>
                 </div>
                 <div class="card-footer text-muted py-1">
                     <small>主催者：{{ league.host }}</small>

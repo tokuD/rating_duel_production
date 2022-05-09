@@ -213,3 +213,8 @@ class RankingView(generic.ListView):
         # return super().get_context_data(**kwargs)
         context.update({"object_list": self.objcet_list})
         return context
+
+
+class ResultListView(generic.ListView):
+    model = models.ResultTable
+    template_name = 'game/result_list.html'

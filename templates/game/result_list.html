@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+
+
+{% block title %}
+    結果一覧
+{% endblock title %}
+
+
+
+{% block content %}
+    {% for object in object_list %}
+    {{ object }}
+    {% endfor %}
+{% endblock content %}
