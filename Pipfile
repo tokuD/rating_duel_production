@@ -8,6 +8,7 @@ django = "*"
 django-allauth = "*"
 channels = "*"
 channels-redis = "*"
+daphne = "*"
 
 [dev-packages]
 

@@ -45,17 +45,6 @@
                                 </ul>
                             </div>
                         </li>
-                        <li class="navbar-item mb-1">
-                            <a href="#collapseRate" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-graph-up-arrow"></i>&ThickSpace; レート戦</a>
-                            <div class="collapse" id="collapseRate">
-                                <ul>
-                                    <li><a href="" class="nav-link">対戦ページ</a></li>
-                                    <li><a href="" class="nav-link">チャット一覧</a></li>
-                                    <li><a href="" class="nav-link">結果一覧</a></li>
-                                    <li><a href="" class="nav-link">ランキング</a></li>
-                                </ul>
-                            </div>
-                        </li>
                     </ul>
                 </div>
 
@@ -85,17 +74,6 @@
                                     </ul>
                                 </div>
                             </li>
-                            <li class="navbar-item mb-1">
-                                <a href="#offcanvasRate" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-graph-up-arrow"></i>&ThickSpace; レート戦</a>
-                                <div class="collapse" id="offcanvasRate">
-                                    <ul>
-                                        <li><a href="" class="nav-link text-light">対戦ページ</a></li>
-                                        <li><a href="" class="nav-link text-light">チャット一覧</a></li>
-                                        <li><a href="" class="nav-link text-light">結果一覧</a></li>
-                                        <li><a href="" class="nav-link text-light">ランキング</a></li>
-                                    </ul>
-                                </div>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -106,11 +84,11 @@
             <div class="flex-fill">
                 <!-- *HEADER -->
                 <header class="d-flex bg-primary justify-content-between p-2">
-                    <a id="offcanvas_link" class="btn btn-primary collapse" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+                    <a id="offcanvas_link" class="btn btn-primary d-md-none" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
                         <i class="bi bi-list"></i>
                     </a>
                     <div class="flex-nowrap gx-1 col-auto">
-                        <form action="" method="get" class=" input-group collapse" id="header_search_form">
+                        <form action="" method="get" class=" input-group d-none d-md-flex" id="header_search_form">
                             <input type="search" name="player_name" placeholder="プレイヤー名" value="{{ search_key }}" class="form-control">
                             <button type="submit" class="input-group-text btn btn-dark"><i class="bi bi-search"></i>&ThickSpace;検索</button>
                         </form>
@@ -149,6 +127,7 @@
                     {% for message in messages %}
                         <div class="alert alert-{{ message.tags }} p-1" role="alert">
                             <span>{{ message }}</span>
+                            <button type="button" class="btn-close align-bottom"></button>
                         </div>
                     {% endfor %}
                     {% block content %}{% endblock content %}
@@ -161,17 +140,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        const offcanvas_link = document.getElementById('offcanvas_link');
-        const show_offcanvas_link = ()=>{
-            if(window.outerWidth < 768){
-                offcanvas_link.classList.add('show');
-            }
-            else{
-                offcanvas_link.classList.remove('show');
-            }
-        };
-        window.addEventListener('resize', show_offcanvas_link);
-        window.addEventListener('load', show_offcanvas_link);
+        const messages = document.querySelectorAll('.alert');
+        messages.forEach((message)=>{
+            message.querySelector('.btn-close').addEventListener('click', ()=>{
+                message.classList.add('d-none');
+            });
+        });
     </script>
     {% block extra_js %}{% endblock extra_js %}
     <!-- */SCRIPT -->
