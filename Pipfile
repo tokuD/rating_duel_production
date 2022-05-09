@@ -9,6 +9,7 @@ django-allauth = "*"
 channels = "*"
 channels-redis = "*"
 daphne = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

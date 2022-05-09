@@ -8,24 +8,30 @@
 
 
 {% block content %}
-<div class="row gx-3">
-    {% for league in object_list %}
-    <div class="col-lg-6 col-xxl-4">
-        <div class="card text-center shadow mb-3">
-            <div class="card-body">
-                <h5 class="card-title text-danger">{{ league }}</h5>
-                <div class="card-text mb-3">
-                    {{ league.details|linebreaksbr }}
+<div class="accordion mb-3" id="accordionLeague">
+{% for league in object_list %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                <span class="badge bg-danger rounded-pill" data-bs-toggle="tooltip" data-bs-html="true" title="参加人数">{{ league.players.count }}人</span>&ThickSpace;{{ league }}
+            </button>
+        </h2>
+        <div class="accordion-collapse collapse" id="collapse{{ forloop.counter }}">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-text mb-3">
+                        {{ league.details|linebreaksbr }}
+                    </div>
+                    <a href="{% url 'game:search_for_opponent' league.name %}" class="btn btn-primary">参加する</a>
+                    <a href="{% url 'game:ranking' league.name %}" class="btn btn-secondary">順位表</a>
                 </div>
-                <a href="{% url 'game:search_for_opponent' league.name %}" class="btn btn-success mx-2">参加する</a>
-                <a href="" class="btn btn-info mx-2">順位表</a>
-            </div>
-            <div class="card-footer text-muted py-1">
-                <small>主催者：{{ league.host }}</small>
+                <div class="card-footer text-muted py-1">
+                    <small>主催者：{{ league.host }}</small>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
+{% endfor %}
 </div>
 
 <!-- *PAGINATION -->

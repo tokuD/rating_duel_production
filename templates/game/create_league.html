@@ -1,0 +1,61 @@
+{% extends '_base.html' %}
+
+
+{% block title %}
+    リーグ追加
+{% endblock title %}
+
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+{% endblock extra_css %}
+
+
+{% block content %}
+    <h3 class="mb-3">リーグ登録</h3>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="id_host" name="host" disabled value="{{ user }}">
+            <label for="id_host">主催者</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="id_name" name="name" required placeholder="リーグ名">
+            <label for="id_name">リーグ名</label>
+        </div>
+        <div class="row gx-1 mb-3">
+            <div class="form-floating mb-2 col-md-6">
+                <input type="text" name="start_at" id="id_start_at" class="form-control">
+                <label for="id_start_at">開始日時</label>
+            </div>
+            <div class="form-floating mb-2 col-md-6">
+                <input type="text" name="finish_at" id="id_finish_at" class="form-control">
+                <label for="id_finish_at">終了日時</label>
+            </div>
+        </div>
+        <textarea name="details" id="id_details" rows="4" class="form-control mb-3" placeholder="詳細"></textarea>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </form>
+{% endblock content %}
+
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+<script type="text/javascript">
+    flatpickr("#id_start_at", {
+        'locale': 'ja',
+        minDate: "today",
+        enableTime: true,
+        //inline: true,
+    });
+    flatpickr("#id_finish_at", {
+        'locale': 'ja',
+        minDate: "today",
+        enableTime: true,
+        //inline: true,
+    });
+</script>
+
+{% endblock extra_js %}

@@ -11,6 +11,9 @@ class LeagueCategory(models.Model):
     players = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='参加者', blank=True)
     details = models.TextField(verbose_name='詳細', blank=True)
     host = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='league_category', verbose_name='主催者')
+    start_at = models.DateTimeField(verbose_name='開始日時', default=timezone.now)
+    finish_at = models.DateTimeField(verbose_name='終了日時', default=timezone.now)
+
 
     def __str__(self):
         return self.name
@@ -22,6 +25,7 @@ class ResultTable(models.Model):
     win = models.PositiveIntegerField(verbose_name='勝ち数', default=0)
     loose = models.PositiveIntegerField(verbose_name='負け数', default=0)
     game_num = models.PositiveIntegerField(verbose_name='試合数', default=0)
+    rank = models.PositiveIntegerField(verbose_name='順位', default=1)
 
     def __str__(self):
         return "{} - {}".format(self.player, self.league)

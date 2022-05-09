@@ -174,3 +174,42 @@ class LeagueListView(mixins.LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
 
+class CreateLeagueView(mixins.LoginRequiredMixin, generic.CreateView):
+    model = models.LeagueCategory
+    fields = ['name', 'details', ]
+    template_name = 'game/create_league.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.host = self.request.user
+        self.object.save()
+        messages.success(self.request, '{}を登録しました。'.format(self.object.name))
+        return HttpResponseRedirect(reverse('game:league_list'))
+
+
+class RankingView(generic.ListView):
+    model = models.ResultTable
+    template_name = 'game/ranking.html'
+
+    def get(self, request, *args, **kwargs):
+        league = models.LeagueCategory.objects.get(name=self.kwargs.get('league_name'))
+        self.objcet_list = models.ResultTable.objects.filter(league=league).order_by('-dp')
+        rank = 0
+        previous_dp = 0
+        for user in self.objcet_list:
+            if not user.dp == previous_dp:
+                rank += 1
+            previous_dp = user.dp
+            user.rank = rank
+            user.save()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search_key = self.request.GET.get('player_name')
+        if search_key:
+            self.object_list = self.objcet_list.filter(username__icontains=search_key).order_by('-rating')
+            self.extra_context = {'search_key': search_key}
+        # return super().get_context_data(**kwargs)
+        context.update({"object_list": self.objcet_list})
+        return context

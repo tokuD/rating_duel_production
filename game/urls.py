@@ -10,5 +10,7 @@ urlpatterns = [
     path('<str:league_name>/room/<str:room_name>/', views.RoomView.as_view(), name='room'),
     path('enroll/<str:league_name>/', views.CreateResultTableView.as_view(), name='create_result_table'),
     path('league_list/', views.LeagueListView.as_view(), name='league_list'),
+    path('create_league/', views.CreateLeagueView.as_view(), name='create_league'),
+    path('<str:league_name>/ranking/', views.RankingView.as_view(), name='ranking'),
     path('', views.HomeView.as_view(), name='home'),
 ]
