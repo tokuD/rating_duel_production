@@ -4,3 +4,11 @@
     opacity: 0;
     transform: translateX(100px);
 }
+
+button{
+    user-select: none;
+}
+
+a{
+    user-select: none;
+}

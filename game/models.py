@@ -7,7 +7,7 @@ import json
 
 
 class LeagueCategory(models.Model):
-    name = models.CharField(max_length=50, verbose_name='リーグカテゴリ', unique=True)
+    name = models.CharField(max_length=50, verbose_name='リーグカテゴリ')
     players = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='参加者', blank=True)
     details = models.TextField(verbose_name='詳細', blank=True)
     host = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='league_category', verbose_name='主催者')

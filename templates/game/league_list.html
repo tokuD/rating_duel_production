@@ -8,7 +8,32 @@
 
 
 {% block content %}
-<div class="accordion mb-3" id="accordionLeague">
+<a class="btn btn-primary mb-1" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Filter
+</a>
+<div class="collapse" id="collapseExample">
+    <div class="card card-body mt-0">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="radio" name="league_filter" id="check_all" checked value="1">
+            <label class="form-check-label" for="check_all">all</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="radio" name="league_filter" id="check_participate" value="2">
+            <label class="form-check-label" for="check_participate">参加中</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="radio" name="league_filter" id="check_running" value="3">
+            <label class="form-check-label" for="check_running">開催中</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="radio" name="league_filter" id="check_finished" value="4">
+            <label class="form-check-label" for="check_finished">終了済み</label>
+        </div>
+    </div>
+</div>
+
+
+<div class="accordion my-3" id="accordionLeague">
 {% for league in object_list %}
     <div class="accordion-item">
         <h2 class="accordion-header">
@@ -35,26 +60,29 @@
 {% endfor %}
 </div>
 
-<!-- *PAGINATION -->
-<nav class="d-flex justify-content-center">
-    <ul class="pagination pagination-sm">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a href="?{% url_replace request 'page' page_obj.previous_page_number %}" class="page-link">&laquo;</a></li>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <li class="page-item active"><a href="" class="page-link">{{ num }}</a></li>
-            {% else %}
-                <li class="page-item"><a href="?{% url_replace request 'page' num %}" class="page-link">{{ num }}</a></li>
-            {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-            <li class="page-item"><a href="?{% url_replace request 'page' page_obj.next_page_number %}" class="page-link">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</nav>
-<!-- */PAGINATION  -->
+{% include 'pagination.html' %}
 
 {% endblock content %}
+
+
+{% block extra_js %}
+    <script>
+        $("input[name='league_filter']").change(function(e){
+            $.ajax({
+                type: "get",
+                url: "{% url 'game:league_filter_ajax' %}",
+                dataType: "json",
+                data:{
+                    'filter_type': $(this).val(),
+                },
+                success: function(data){
+                    const leagues = data['leagues'];
+                    console.log(leagues);
+                },
+                error: function(e){
+                    console.log(e);
+                }
+            })
+        });
+    </script>
+{% endblock extra_js %}

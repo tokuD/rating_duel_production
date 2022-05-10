@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.contrib.auth import mixins, get_user_model
 from django.urls import reverse
 from django.contrib import messages
+from django.utils import timezone
 
 from . import models, forms
 
@@ -218,3 +219,28 @@ class RankingView(generic.ListView):
 class ResultListView(generic.ListView):
     model = models.ResultTable
     template_name = 'game/result_list.html'
+
+
+class CheckLeagueNameAjax(mixins.LoginRequiredMixin, generic.View):
+    def get(self, request, *args, **kwargs):
+        league_name = request.GET.get('league_name')
+        if len(league_name) == 0:
+            return JsonResponse({"help_text": "リーグ名を入力してください", "is_ok": False})
+        if models.LeagueCategory.objects.filter(name=league_name).exists():
+            return JsonResponse({"help_text":"そのリーグ名は既に使われています", "is_ok": False})
+        return JsonResponse({"help_text": "使用可能です", "is_ok": True})
+
+
+class LeagueFilterViewAjax(generic.View):
+    def get(self, request, *args, **kwargs):
+        filter_value = int(request.GET.get('filter_type'))
+        if filter_value == 1:
+            leagues = models.LeagueCategory.objects.all()
+        elif filter_value == 2:
+            leagues = models.LeagueCategory.objects.filter(players=self.request.user)
+        elif filter_value == 3:
+            leagues = models.LeagueCategory.objects.filter(start_at__lte=timezone.now, finish_at__gte=timezone.now)
+        elif filter_value == 4:
+            leagues = models.LeagueCategory.objects.filter(finish_at__lte=timezone.now)
+        json_leagues = json.dumps(leagues)
+        return JsonResponse({'leagues': json_leagues})

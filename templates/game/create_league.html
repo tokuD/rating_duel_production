@@ -23,6 +23,7 @@
         <div class="form-floating mb-3">
             <input type="text" class="form-control" id="id_name" name="name" required placeholder="リーグ名">
             <label for="id_name">リーグ名</label>
+            <small id="id_name_help" style="font-size: smaller;"></small>
         </div>
         <div class="row gx-1 mb-3">
             <div class="form-floating mb-2 col-md-6">
@@ -56,6 +57,44 @@
         enableTime: true,
         //inline: true,
     });
+
+
+    function check_league_name(){
+        $.ajax({
+            type: "get",
+            url: "{% url 'game:check_league_name_ajax' %}",
+            dataType: "json",
+            data: {
+                'league_name': $("#id_name").val(),
+            },
+            success: function(data){
+                const is_ok = data['is_ok'];
+                const help_text = data['help_text'];
+                if(is_ok){
+                    $("#id_name_help").text(help_text);
+                    $("#id_name_help").addClass("text-success");
+                    $("#id_name_help").removeClass("text-danger");
+                }
+                else{
+                    $("#id_name_help").text(help_text);
+                    $("#id_name_help").removeClass("text-success");
+                    $("#id_name_help").addClass("text-danger");
+                }
+            }
+        })
+    }
+
+    $("#id_name").change(function(e){
+        check_league_name();
+    });
+
+    $("#id_name").keyup(function(e){
+        check_league_name();
+    });
+    $("#id_name").keydown(function(e){
+        check_league_name();
+    });
+
 </script>
 
 {% endblock extra_js %}
