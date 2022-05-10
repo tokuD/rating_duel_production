@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils import timezone
 
-from . import models, forms
+from . import models, forms, view_models
 
 class HomeView(generic.TemplateView):
     template_name = 'home.html'
@@ -165,6 +165,7 @@ class CreateResultTableView(mixins.LoginRequiredMixin, generic.CreateView):
         self.object.player = self.request.user
         with transaction.atomic():
             self.object.league.players.add(self.request.user)
+            self.object.participants += 1
             self.object.save()
             messages.success(self.request, "{}に参加登録しました。".format(self.object.league))
         return HttpResponseRedirect(self.get_success_url())
@@ -234,13 +235,36 @@ class CheckLeagueNameAjax(mixins.LoginRequiredMixin, generic.View):
 class LeagueFilterViewAjax(generic.View):
     def get(self, request, *args, **kwargs):
         filter_value = int(request.GET.get('filter_type'))
-        if filter_value == 1:
-            leagues = models.LeagueCategory.objects.all()
-        elif filter_value == 2:
-            leagues = models.LeagueCategory.objects.filter(players=self.request.user)
+        order = request.GET.get('order')
+        ordering = request.GET.get('ordering')
+        search_key = request.GET.get('search_key')
+        searched = models.LeagueCategory.objects.all()
+        if filter_value == 2:
+            searched = models.LeagueCategory.objects.filter(players=self.request.user)
         elif filter_value == 3:
-            leagues = models.LeagueCategory.objects.filter(start_at__lte=timezone.now, finish_at__gte=timezone.now)
+            searched = models.LeagueCategory.objects.filter(start_at__lte=timezone.now(), finish_at__gte=timezone.now())
         elif filter_value == 4:
-            leagues = models.LeagueCategory.objects.filter(finish_at__lte=timezone.now)
-        json_leagues = json.dumps(leagues)
-        return JsonResponse({'leagues': json_leagues})
+            searched = models.LeagueCategory.objects.filter(finish_at__lte=timezone.now())
+        if search_key != '':
+            searched = searched.filter(name__icontains=search_key)
+        if ordering == 'lower':
+            if order == 'created_at': searched = searched.order_by('-created_at')
+            else: searched = searched.order_by('-participants')
+        else:
+            if order == 'created_at': searched = searched.order_by('created_at')
+            else: searched = searched.order_by('participants')
+        leagues = []
+        for obj in searched:
+            leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
+        return JsonResponse(leagues, safe=False)
+
+class SearchViewAjax(generic.View):
+    def get(self, request, *args, **kwargs):
+        search_key = request.GET.get('search_key')
+        leagues = []
+        searched = models.LeagueCategory.objects.all()
+        if search_key != '':
+            searched = models.LeagueCategory.objects.filter(name__icontains=search_key).distinct()
+        for obj in searched:
+            leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
+        return JsonResponse(leagues, safe=False)

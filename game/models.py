@@ -6,13 +6,16 @@ from django.utils import timezone
 import json
 
 
+
 class LeagueCategory(models.Model):
     name = models.CharField(max_length=50, verbose_name='リーグカテゴリ')
     players = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='参加者', blank=True)
     details = models.TextField(verbose_name='詳細', blank=True)
     host = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='league_category', verbose_name='主催者')
-    start_at = models.DateTimeField(verbose_name='開始日時', default=timezone.now)
-    finish_at = models.DateTimeField(verbose_name='終了日時', default=timezone.now)
+    start_at = models.DateTimeField(verbose_name='開始日時')
+    finish_at = models.DateTimeField(verbose_name='終了日時')
+    created_at = models.DateTimeField(verbose_name='登録日時', default=timezone.now)
+    participants = models.IntegerField(verbose_name='参加人数', default=0)
 
 
     def __str__(self):

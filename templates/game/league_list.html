@@ -8,57 +8,82 @@
 
 
 {% block content %}
-<a class="btn btn-primary mb-1" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+<a class="btn btn-primary mb-1" data-bs-toggle="collapse" href="#filtterCollapse" role="button" aria-expanded="false" aria-controls="collapseExample">
     Filter
 </a>
-<div class="collapse" id="collapseExample">
-    <div class="card card-body mt-0">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="radio" name="league_filter" id="check_all" checked value="1">
-            <label class="form-check-label" for="check_all">all</label>
+<div class="collapse" id="filtterCollapse">
+    <div class="card card-body mt-0 row px-0 mx-1 flex-row">
+        <div class="col-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_filter" id="check_all" checked value="1">
+                <label class="form-check-label" for="check_all">all</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_filter" id="check_participate" value="2">
+                <label class="form-check-label" for="check_participate">参加中</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_filter" id="check_running" value="3">
+                <label class="form-check-label" for="check_running">開催中</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_filter" id="check_finished" value="4">
+                <label class="form-check-label" for="check_finished">終了済</label>
+            </div>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="radio" name="league_filter" id="check_participate" value="2">
-            <label class="form-check-label" for="check_participate">参加中</label>
+
+        <div class="col-4">
+            <div class="form-check form-switch">
+                <input  class="form-check-input" type="radio" name="league_order" id="order_created" checked value="created_at">
+                <label class="form-check-label" for="check_all">登録順</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_order" id="order_played" value="players">
+                <label class="form-check-label" for="check_participate">人数順</label>
+            </div>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="radio" name="league_filter" id="check_running" value="3">
-            <label class="form-check-label" for="check_running">開催中</label>
+
+        <div class="col-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_ordering" id="lower" checked value="lower">
+                <label class="form-check-label" for="check_all">降順</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="radio" name="league_ordering" id="upper" value="upper">
+                <label class="form-check-label" for="check_participate">昇順</label>
+            </div>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="radio" name="league_filter" id="check_finished" value="4">
-            <label class="form-check-label" for="check_finished">終了済み</label>
-        </div>
+
     </div>
 </div>
 
 
 <div class="accordion my-3" id="accordionLeague">
-{% for league in object_list %}
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
-                <span class="badge bg-danger rounded-pill" data-bs-toggle="tooltip" data-bs-html="true" title="参加人数">{{ league.players.count }}人</span>&ThickSpace;{{ league }}
-            </button>
-        </h2>
-        <div class="accordion-collapse collapse" id="collapse{{ forloop.counter }}">
-            <div class="card">
-                <div class="card-body">
-                    <div class="card-text mb-3">
-                        {{ league.details|linebreaksbr }}
-                    </div>
-                    <a href="{% url 'game:search_for_opponent' league.name %}" class="btn btn-primary">参加する</a>
-                    <a href="{% url 'game:ranking' league.name %}" class="btn btn-secondary">順位表</a>
-                    <a href="{% url 'game:result_list' league.name %}" class="btn btn-secondary">結果一覧</a>
+</div>
+
+<!-- * TEMPLATE -->
+<div class="accordion-item d-none" id="for_template">
+    <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="">
+            <span id="badge" class="badge bg-danger rounded-pill me-1" data-bs-toggle="tooltip" data-bs-html="true" title="参加人数">0人</span>
+        </button>
+    </h2>
+    <div class="accordion-collapse collapse" id="">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-text mb-3">
                 </div>
-                <div class="card-footer text-muted py-1">
-                    <small>主催者：{{ league.host }}</small>
-                </div>
+                <a href="" class="btn btn-primary" id="participate">参加する</a>
+                <a href="" class="btn btn-secondary" id="ranking">順位表</a>
+                <a href="" class="btn btn-secondary" id="result">結果一覧</a>
+            </div>
+            <div class="card-footer text-muted py-1">
+                <small></small>
             </div>
         </div>
     </div>
-{% endfor %}
 </div>
+<!-- *TEMPLATE -->
 
 {% include 'pagination.html' %}
 
@@ -67,22 +92,102 @@
 
 {% block extra_js %}
     <script>
-        $("input[name='league_filter']").change(function(e){
+        function set_leagues(data){
+            const template = document.getElementById('for_template');
+            const parent = document.getElementById('accordionLeague');
+            data.forEach((league)=>{
+                const clone = template.cloneNode(true);
+                clone.classList.remove('d-none');
+                clone.querySelector("#badge").textContent = league['players'].length + "人";
+                clone.querySelector(".accordion-button").append("" + league['name']);
+                clone.querySelector(".accordion-button").setAttribute("data-bs-target", "#" + league['name'].replace(/ /, '___'));
+                clone.querySelector(".accordion-collapse").id = league['name'].replace(/ /, '___');
+                clone.querySelector(".card-text").innerHTML = league['details'].replace(/\r\n/g, "<br>");
+                clone.querySelector("small").textContent = "主催者：" + league['host'];
+                clone.querySelector("#participate").setAttribute("href", "{% url 'game:search_for_opponent' 123456 %}".replace(/123456/, league['name']));
+                clone.querySelector("#ranking").setAttribute("href", "{% url 'game:ranking' 123456 %}".replace(/123456/, league['name']));
+                clone.querySelector("#result").setAttribute("href", "{% url 'game:result_list' 123456 %}".replace(/123456/, league['name']));
+                parent.append(clone);
+            })
+        }
+
+        function delete_leagues(){
+            const parent = document.getElementById('accordionLeague');
+            while(parent.firstChild){
+                parent.removeChild(parent.firstChild);
+            }
+        }
+
+        function filter_leagues(){
+            delete_leagues();
+            const types = document.getElementsByName('league_filter');
+            var type = '';
+            types.forEach((t)=>{
+                if(t.checked) type = t.value;
+            });
+            const orders = document.getElementsByName('league_order');
+            var order = '';
+            orders.forEach((o)=>{
+                if(o.checked) order = o.value;
+            });
+            const orderings = document.getElementsByName('league_ordering');
+            var ordering = '';
+            orderings.forEach((o)=>{
+                if(o.checked) ordering = o.value;
+            });
+            console.log(type,order, ordering)
             $.ajax({
                 type: "get",
                 url: "{% url 'game:league_filter_ajax' %}",
                 dataType: "json",
                 data:{
-                    'filter_type': $(this).val(),
+                    'filter_type': type,
+                    'order': order,
+                    'ordering': ordering,
+                    'search_key': $("input[name='search_key']").val(),
                 },
                 success: function(data){
-                    const leagues = data['leagues'];
-                    console.log(leagues);
+                    set_leagues(data);
                 },
-                error: function(e){
-                    console.log(e);
+            })
+        }
+
+
+        $("input[name='league_filter']").change(function(e){
+            filter_leagues();
+        });
+
+        $("input[name='league_order']").change(function(e){
+            filter_leagues();
+        });
+
+        $("input[name='league_ordering']").change(function(e){
+            filter_leagues();
+        });
+
+        function search_form(){
+            $.ajax({
+                type: "get",
+                url: "{% url 'game:search_league_list_ajax' %}",
+                dataType: "json",
+                data: {
+                    'search_key': $("input[name='search_key']").val(),
+                },
+                success: function(data){
+                    set_leagues(data);
                 }
             })
+        }
+
+        $("#search_btn").click(function(e){
+            e.preventDefault();
+            delete_leagues();
+            search_form();
         });
+
+        $(function(){
+            search_form();
+        });
+
     </script>
 {% endblock extra_js %}
