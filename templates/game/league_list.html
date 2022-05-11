@@ -8,57 +8,60 @@
 
 
 {% block content %}
-<a class="btn btn-primary mb-1" data-bs-toggle="collapse" href="#filtterCollapse" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Filter
-</a>
-<div class="collapse" id="filtterCollapse">
-    <div class="card card-body mt-0 row px-0 mx-1 flex-row">
-        <div class="col-4">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_filter" id="check_all" checked value="1">
-                <label class="form-check-label" for="check_all">all</label>
+<div class="container-fluid">
+    <a class="btn btn-primary mb-1" data-bs-toggle="collapse" href="#filtterCollapse" role="button" aria-expanded="false" aria-controls="collapseExample">
+        Filter
+    </a>
+    <div class="collapse" id="filtterCollapse">
+        <div class="card card-body mt-0 row px-0 mx-1 flex-row">
+            <div class="col-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_filter" id="check_all" checked value="1">
+                    <label class="form-check-label" for="check_all">all</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_filter" id="check_participate" value="2">
+                    <label class="form-check-label" for="check_participate">参加中</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_filter" id="check_running" value="3">
+                    <label class="form-check-label" for="check_running">開催中</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_filter" id="check_finished" value="4">
+                    <label class="form-check-label" for="check_finished">終了済</label>
+                </div>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_filter" id="check_participate" value="2">
-                <label class="form-check-label" for="check_participate">参加中</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_filter" id="check_running" value="3">
-                <label class="form-check-label" for="check_running">開催中</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_filter" id="check_finished" value="4">
-                <label class="form-check-label" for="check_finished">終了済</label>
-            </div>
-        </div>
 
-        <div class="col-4">
-            <div class="form-check form-switch">
-                <input  class="form-check-input" type="radio" name="league_order" id="order_created" checked value="created_at">
-                <label class="form-check-label" for="check_all">登録順</label>
+            <div class="col-4">
+                <div class="form-check form-switch">
+                    <input  class="form-check-input" type="radio" name="league_order" id="order_created" checked value="created_at">
+                    <label class="form-check-label" for="check_all">登録順</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_order" id="order_played" value="players">
+                    <label class="form-check-label" for="check_participate">人数順</label>
+                </div>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_order" id="order_played" value="players">
-                <label class="form-check-label" for="check_participate">人数順</label>
-            </div>
-        </div>
 
-        <div class="col-4">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_ordering" id="lower" checked value="lower">
-                <label class="form-check-label" for="check_all">降順</label>
+            <div class="col-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_ordering" id="lower" checked value="lower">
+                    <label class="form-check-label" for="check_all">降順</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="radio" name="league_ordering" id="upper" value="upper">
+                    <label class="form-check-label" for="check_participate">昇順</label>
+                </div>
             </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="radio" name="league_ordering" id="upper" value="upper">
-                <label class="form-check-label" for="check_participate">昇順</label>
-            </div>
-        </div>
 
+        </div>
     </div>
-</div>
 
 
-<div class="accordion my-3" id="accordionLeague">
+    <div class="accordion my-3" id="accordionLeague">
+    </div>
+
 </div>
 
 <!-- * TEMPLATE -->
@@ -108,6 +111,10 @@
                 clone.querySelector("#ranking").setAttribute("href", "{% url 'game:ranking' 123456 %}".replace(/123456/, league['name']));
                 clone.querySelector("#result").setAttribute("href", "{% url 'game:result_list' 123456 %}".replace(/123456/, league['name']));
                 parent.append(clone);
+            })
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         }
 

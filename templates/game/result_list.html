@@ -8,7 +8,104 @@
 
 
 {% block content %}
-    {% for object in object_list %}
-    {{ object }}
-    {% endfor %}
+<div class="container-fluid">
+    <div class="row g-2 justify-content-start">
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card px-0 text-center shadow">
+                <div class="card-header px-0 py-1">
+                    League name
+                </div>
+                <div class="card-body pb-1 px-0">
+                    <div class="card-text">
+                        <div class="row mb-1 mx-0">
+                            <div class="col-5 text-end">hoge</div>
+                            <div class="col-2">VS</div>
+                            <div class="col-5 text-start">fuga</div>
+                        </div>
+                        <div class="row mb-2 mx-0">
+                            <div class="col-5 text-end text-success fw-bold">W</div>
+                            <div class="col-2">-</div>
+                            <div class="col-5 text-start text-danger fw-bold">L</div>
+                        </div>
+                        <small class="text-muted">2022/11/28 12:00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card px-0 text-center shadow">
+                <div class="card-header px-0 py-1">
+                    League name
+                </div>
+                <div class="card-body pb-1 px-0">
+                    <div class="card-text">
+                        <div class="row mb-1 mx-0">
+                            <div class="col-5 text-end">hoge</div>
+                            <div class="col-2">VS</div>
+                            <div class="col-5 text-start">fuga</div>
+                        </div>
+                        <div class="row mb-2 mx-0">
+                            <div class="col-5 text-end text-success fw-bold">W</div>
+                            <div class="col-2">-</div>
+                            <div class="col-5 text-start text-danger fw-bold">L</div>
+                        </div>
+                        <small class="text-muted">2022/11/28 12:00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card px-0 text-center shadow">
+                <div class="card-header px-0 py-1">
+                    League name
+                </div>
+                <div class="card-body pb-1 px-0">
+                    <div class="card-text">
+                        <div class="row mb-1 mx-0">
+                            <div class="col-5 text-end">hoge</div>
+                            <div class="col-2">VS</div>
+                            <div class="col-5 text-start">fuga</div>
+                        </div>
+                        <div class="row mb-2 mx-0">
+                            <div class="col-5 text-end text-success fw-bold">W</div>
+                            <div class="col-2">-</div>
+                            <div class="col-5 text-start text-danger fw-bold">L</div>
+                        </div>
+                        <small class="text-muted">2022/11/28 12:00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- *TEMPLATE -->
+<div class="col-md-6 col-lg-4 d-none">
+    <div class="card px-0 text-center shadow">
+        <div class="card-header px-0">
+            League name
+        </div>
+        <div class="card-body pb-1 px-0 py-1">
+            <div class="card-text">
+                <div class="row mb-1 mx-0">
+                    <div class="col-5 text-end">hoge</div>
+                    <div class="col-2">VS</div>
+                    <div class="col-5 text-start">fuga</div>
+                </div>
+                <div class="row mb-2 mx-0">
+                    <div class="col-5 text-end text-success fw-bold">W</div>
+                    <div class="col-2">-</div>
+                    <div class="col-5 text-start text-danger fw-bold">L</div>
+                </div>
+                <small class="text-muted">2022/11/28 12:00</small>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- */TEMPLATE -->
+
 {% endblock content %}

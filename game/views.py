@@ -163,9 +163,12 @@ class CreateResultTableView(mixins.LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.player = self.request.user
+        league_name = self.kwargs.get('league_name')
+        self.league = models.LeagueCategory.objects.get(name=league_name)
         with transaction.atomic():
             self.object.league.players.add(self.request.user)
-            self.object.participants += 1
+            self.league.participants += 1
+            self.league.save()
             self.object.save()
             messages.success(self.request, "{}に参加登録しました。".format(self.object.league))
         return HttpResponseRedirect(self.get_success_url())
@@ -218,7 +221,7 @@ class RankingView(generic.ListView):
 
 
 class ResultListView(generic.ListView):
-    model = models.ResultTable
+    model = models.Game
     template_name = 'game/result_list.html'
 
 
