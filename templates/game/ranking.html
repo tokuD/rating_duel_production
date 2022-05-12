@@ -23,7 +23,7 @@
                 {% for object in object_list %}
                     <tr class="text-start">
                         <th scope="row">{{ object.rank }}</th>
-                        <td>{% if object.player.socialaccount_set.all %}<img src="{{ object.player.socialaccount_set.all.0.get_avatar_url }}" width="25px" height="25px" class="rounded-circle align-bottom">{% else %}<i class="bi bi-person-lines-fill"></i>{% endif %}&ThickSpace;<span class="link-primary">{{ object.player.username }}</span></td>
+                        <td>{% if object.player.socialaccount_set.all %}<img src="{{ object.player.socialaccount_set.all.0.get_avatar_url }}" width="25px" height="25px" class="rounded-circle align-bottom">{% else %}<i class="bi bi-person-lines-fill align-middle mx-1"></i>{% endif %}&ThickSpace;<span class="link-primary">{{ object.player.username }}</span></td>
                         <td>{{ object.dp }}</td>
                         <td>{{ object.game_num }}</td>
                         <td>{{ object.win }}</td>
@@ -34,5 +34,37 @@
         </table>
     </div>
 
-    {% include 'pagination.html' %}
+
+
+<!-- *PAGINATION -->
+<nav class="d-flex justify-content-center">
+    <ul class="pagination pagination-sm" id="pagination_ul">
+        {% if current_page != 1 %}
+        <li class="page-item"><a class="page-link" id="first_page" href="?{% url_replace request 'page' 1 %}">&laquo;</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link text-muted" id="first_page">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in page_nums %}
+        {% if page == current_page %}
+        <li class="page-item active" id='pagination_template'>
+            <a class="page-link page-num">{{ page }}</a>
+        </li>
+        {% else %}
+        <li class="page-item" id='pagination_template'>
+            <a class="page-link page-num" href="?{% url_replace request 'page' page %}">{{ page }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if current_page != max_page %}
+        <li class="page-item"><a id="last_page" class="page-link" href="?{% url_replace request 'page' max_page %}">&raquo;</a></li>
+        {% else %}
+        <li class="page-item"><a id="last_page" class="page-link text-muted">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- */PAGINATION  -->
+
 {% endblock content %}

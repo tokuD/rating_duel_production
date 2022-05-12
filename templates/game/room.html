@@ -46,7 +46,7 @@
                 {% csrf_token %}
                 <div class="form-floating">
                     <!-- <textarea rows="2" autofocus type="text" placeholder="メッセージを入力" id="input_message" class="form-control mb-3" autocomplete="off"></textarea> -->
-                    <input autofocus type="text" id="input_message" placeholder="メッセージを入力" class="form-control mb-3" autocomplete="off">
+                    <input autofocus type="text" id="input_message" placeholder="" class="form-control mb-3" autocomplete="off">
                     <label for="input_message" class="">メッセージを入力</label>
                 </div>
                 <button type="submit" class="btn btn-success" id="send_message">送信</button>
@@ -156,9 +156,11 @@
 
     $("#send_message").click(function(e){
         e.preventDefault();
+        const message = $("#input_message").val();
+        if(message === '') return;
         ws.send(JSON.stringify({
             'data_type': 'chat_message',
-            'message': $("#input_message").val(),
+            'message': message,
             'user_name': "{{ user.username }}"
         }));
         $("#input_message").val("");

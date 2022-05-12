@@ -24,7 +24,7 @@ class LeagueCategory(models.Model):
 class ResultTable(models.Model):
     player = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='player', related_name='result_table')
     league = models.ForeignKey(LeagueCategory, on_delete=models.CASCADE, verbose_name='リーグカテゴリ', related_name='result_table')
-    dp = models.PositiveIntegerField(verbose_name='dp', default=0)
+    dp = models.DecimalField(verbose_name='dp', default=0, max_digits=6, decimal_places=1)
     win = models.PositiveIntegerField(verbose_name='勝ち数', default=0)
     loose = models.PositiveIntegerField(verbose_name='負け数', default=0)
     game_num = models.PositiveIntegerField(verbose_name='試合数', default=0)
@@ -50,7 +50,9 @@ def default_result():
     result = {
         'player1': '',
         'player2': '',
-        'thema': ''
+        'thema': '',
+        'win_rate12': 0.5,
+        'win_rate21': 0.5,
     }
     return json.dumps(result)
 
@@ -66,6 +68,8 @@ class Game(models.Model):
     result = models.JSONField(verbose_name='試合結果', default=default_result)
     start_at = models.DateTimeField(verbose_name='開始日時', default=timezone.now)
     submitted_players = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='結果提出者')
+    win_rate12 = models.DecimalField(max_digits=11, decimal_places=10, default=0.5)
+    win_rate21 = models.DecimalField(max_digits=11, decimal_places=10, default=0.5)
 
     def __str__(self):
         return "{} vs {} at {}".format(self.player1, self.player2, self.start_at.strftime("%Y/%m/%d %H:%M:%S"))

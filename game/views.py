@@ -37,7 +37,11 @@ class SearchForOpponentView(mixins.LoginRequiredMixin, generic.TemplateView):
         return HttpResponseRedirect(reverse('game:search_for_opponent'))
 
 
+
 class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
+    matching_range = 10000 #! matchingの際の±dp範囲
+    dp_diff = 40000 #! 期待勝率が10倍になるであろうdp差
+
     def post(self, request, *args, **kwargs):
         league_name = self.kwargs.get('league_name')
         self.league = models.LeagueCategory.objects.get(name=league_name)
@@ -54,6 +58,8 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
                 waiting2 = models.WaitingPlayer.objects.get(player=opponent, league=self.league)
                 waiting1.delete()
                 waiting2.delete()
+                opponent_dp = models.ResultTable.objects.get(player=opponent, league=self.league).dp
+                win_rate12 = 1 / (1 + math.pow(10, (opponent_dp - self.dp) / self.dp_diff))
                 while True:
                     roomname = self.generate_room()
                     if not models.Game.objects.filter(room=roomname).exists():
@@ -62,7 +68,9 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
                     room=roomname,
                     player1=self.request.user,
                     player2=opponent,
-                    league=self.league
+                    league=self.league,
+                    win_rate12=win_rate12,
+                    win_rate21=1 - win_rate12
                 )
             messages.success(self.request, "対戦相手が決定しました!")
             return JsonResponse({"is_success": True, "roomname": game.room})
@@ -70,13 +78,12 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
             return JsonResponse({"is_success": False, "roomname": None})
 
     def search_for_opponent(self, count):
-        print('search now...')
         if not models.WaitingPlayer.objects.filter(player=self.request.user, league=self.league).exists():
             return 'matched'
         if count == 20:
             models.WaitingPlayer.objects.filter(player=self.request.user, league=self.league).delete()
             return False
-        lowwer_dp, upper_dp = self.dp - 10000, self.dp + 10000
+        lowwer_dp, upper_dp = self.dp - self.matching_range, self.dp + self.matching_range
         opponent_candidates = models.WaitingPlayer.objects.filter(league=self.league, dp__gte=lowwer_dp, dp__lte=upper_dp).exclude(player=self.request.user).distinct()
         if not opponent_candidates.exists():
             time.sleep(1)
@@ -89,8 +96,11 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
         alphabet = string.ascii_letters + string.digits
         return ''.join(secrets.choice(alphabet) for _ in range(10))
 
+
+
 class RoomView(mixins.LoginRequiredMixin, generic.TemplateView):
     template_name = 'game/room.html'
+    ero_rate_const = 2000
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,41 +117,60 @@ class RoomView(mixins.LoginRequiredMixin, generic.TemplateView):
         self.league = self.game.league
         self.result_table = models.ResultTable.objects.get(player=self.request.user, league=self.league)
         result_num = self.request.POST.get('result')
+        player = 'player1' if self.request.user == self.game.player1 else 'player2'
         if self.request.user in self.game.submitted_players.all():
             #*更新処理
-            self.reset_dp(json.loads(self.game.result))
+            self.reset_dp(json.loads(self.game.result, player))
         else:
             #*新規作成
             self.game.submitted_players.add(self.request.user)
-        self.update_dp(result_num)
-        self.update_result(result_num)
+        self.update_dp(result_num, self.game.result, player)
+        self.update_result(result_num, player)
         return HttpResponseRedirect(reverse("game:search_for_opponent", kwargs={"league_name": self.league}))
 
-    def reset_dp(self, results):
-        player = 'player1' if self.request.user == self.game.player1 else 'player2'
+    def reset_dp(self, results, player):
         result = results[player]
+        win_rate = 0.5
+        if player == 'player1': win_rate = self.game.win_rate12
+        else: win_rate = self.game.win_rate21
         if 'WIN' == result:
-            self.result_table.dp += -1000
+            self.result_table.dp += -self.ero_rate_const * (1 - win_rate)
             self.result_table.win += -1
         elif 'LOOSE' == result:
-            self.result_table.dp += 1000
+            self.result_table.dp += self.ero_rate_const * (-win_rate)
             self.result_table.loose += -1
+        else:
+            self.result_table.dp += self.ero_rate_const * (0.5 - win_rate)
         self.result_table.game_num += -1
+        self.result_table.dp = max(0, self.result_table.dp)
         self.result_table.save()
 
-    def update_dp(self, result_num):
+    def update_dp(self, result_num, result, player):
+        win_rate = 0.5
+        if player == 'player1': win_rate = self.game.win_rate12
+        else: win_rate = self.game.win_rate21
         if result_num == '0':
-            self.result_table.dp += 1000
+            self.result_table.dp += self.ero_rate_const * (1 - win_rate)
             self.result_table.win += 1
+            messages.info(self.request, "dp +{:.1f}".format(self.ero_rate_const * (1 - win_rate)))
         elif result_num == '1':
-            self.result_table.dp = max(self.result_table.dp-1000, 0)
+            self.result_table.dp += self.ero_rate_const * (-win_rate)
             self.result_table.loose += 1
+            messages.info(self.request, "dp {:.1f}".format(self.ero_rate_const * (-win_rate)))
+        else:
+            self.result_table.dp += self.ero_rate_const * (0.5 - win_rate)
+            if 0.5 > win_rate:
+                messages.info(self.request, "dp +{:.1f}".format(self.ero_rate_const * (0.5 - win_rate)))
+            elif 0.5 < win_rate:
+                messages.info(self.request, "dp {:.1f}".format(self.ero_rate_const * (0.5 - win_rate)))
+            else:
+                messages.info(self.request, "dp {:.1f}".format(self.ero_rate_const * (0.5 - win_rate)))
+        self.result_table.dp = max(0, self.result_table.dp)
         self.result_table.game_num += 1
         self.result_table.save()
 
-    def update_result(self, result_num):
+    def update_result(self, result_num, player):
         result = json.loads(self.game.result)
-        player = 'player1' if self.request.user == self.game.player1 else 'player2'
         RESULT_CHAR = {'0': 'WIN', '1': 'LOOSE', '2': 'DRAW'}
         result[player] = RESULT_CHAR[result_num]
         self.game.result = json.dumps(result)
@@ -199,28 +228,46 @@ class CreateLeagueView(mixins.LoginRequiredMixin, generic.CreateView):
 class RankingView(generic.ListView):
     model = models.ResultTable
     template_name = 'game/ranking.html'
+    paginate_by = 20
 
     def get(self, request, *args, **kwargs):
         league = models.LeagueCategory.objects.get(name=self.kwargs.get('league_name'))
         self.objcet_list = models.ResultTable.objects.filter(league=league).order_by('-dp')
         rank = 0
-        previous_dp = 0
+        previous_dp = -1
         for user in self.objcet_list:
-            if not user.dp == previous_dp:
+            if not previous_dp == user.dp:
                 rank += 1
-            previous_dp = user.dp
             user.rank = rank
+            previous_dp = user.dp
             user.save()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        search_key = self.request.GET.get('player_name')
-        if search_key:
-            self.object_list = self.objcet_list.filter(username__icontains=search_key).order_by('-rating')
-            self.extra_context = {'search_key': search_key}
-        # return super().get_context_data(**kwargs)
-        context.update({"object_list": self.objcet_list})
+        search_key = self.request.GET.get('search_key') or ''
+        searched = self.objcet_list.all()
+        current_page = int(self.request.GET.get('page') or 1)
+        if search_key != '':
+            searched = searched.filter(player__username__icontains=search_key).order_by('rank')
+        max_page = max(math.ceil(searched.count() / self.paginate_by), 1)
+        start = self.paginate_by * (current_page - 1)
+        end = self.paginate_by * current_page
+        page_nums = []
+        if max_page <= 5:
+            for i in range(1, max_page+1):
+                page_nums.append(i)
+        else:
+            for i in range(max(0, current_page - 2), min(max_page, current_page + 2)):
+                page_nums.append(i)
+        context.update({
+            "object_list": searched[start:end],
+            "current_page": current_page,
+            'max_page': max_page,
+            'page_nums': page_nums,
+            'search_key': search_key
+        })
+        print(context)
         return context
 
 
