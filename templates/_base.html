@@ -33,7 +33,7 @@
                             <div class="collapse" id="collapseGame">
                                 <ul>
                                     <li><a href="{% url 'game:league_list' %}" class="nav-link">リーグ一覧</a></li>
-                                    <li><a href="" class="nav-link">チャット一覧</a></li>
+                                    <li><a href="{% url 'game:create_league' %}" class="nav-link">リーグ開催</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -41,8 +41,7 @@
                             <a href="#collapseData" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
                             <div class="collapse" id="collapseData">
                                 <ul>
-                                    <li><a href="" class="nav-link">順位表</a></li>
-                                    <li><a href="" class="nav-link">自分の戦績</a></li>
+                                    <li><a href="{% url 'game:result_list' %}" class="nav-link">結果一覧</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -62,7 +61,7 @@
                                 <div class="collapse" id="offcanvasGame">
                                     <ul>
                                         <li><a href="{% url 'game:league_list' %}" class="nav-link text-light">リーグ一覧</a></li>
-                                        <li><a href="" class="nav-link text-light">試合登録</a></li>
+                                        <li><a href="{% url 'game:create_league' %}" class="nav-link text-light">リーグ開催</a></li>
                                     </ul>
                                 </div>
                             </li>
@@ -70,8 +69,7 @@
                                 <a href="#offcanvasData" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
                                 <div class="collapse" id="offcanvasData">
                                     <ul>
-                                        <li><a href="" class="nav-link text-light">順位表</a></li>
-                                        <li><a href="" class="nav-link text-light">相性表</a></li>
+                                        <li><a href="{% url 'game:result_list' %}" class="nav-link text-light">結果一覧</a></li>
                                     </ul>
                                 </div>
                             </li>

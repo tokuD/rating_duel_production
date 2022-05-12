@@ -1,3 +1,5 @@
+import json
+
 class LeagueCategoryMapper():
     def __init__(self, obj):
         self.obj = obj
@@ -13,3 +15,19 @@ class LeagueCategoryMapper():
         }
         return data
 
+class GameMapper():
+    def __init__(self, obj):
+        self.obj = obj
+
+    def as_dict(self):
+        result = json.loads(self.obj.result)
+        data = {
+            'league': self.obj.league.name,
+            'player1': self.obj.player1.username,
+            'player2': self.obj.player2.username,
+            'start_at': self.obj.start_at.strftime("%Y/%m/%d %H:%M:%S"),
+            'result1': result['player1'],
+            'result2': result['player2'],
+            'thema': result['thema'],
+        }
+        return data

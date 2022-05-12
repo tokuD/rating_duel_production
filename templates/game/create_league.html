@@ -17,7 +17,10 @@
     <form action="" method="post">
         {% csrf_token %}
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="id_host" name="host" disabled value="{{ user }}">
+            <!-- <input type="text" class="form-control" id="id_host" name="host" disabled value="{{ user }}"> -->
+            <select name="host" id="id_host" class="form-control" disabled>
+                <option value="{{ user.pk }}">{{ user.username }}</option>
+            </select>
             <label for="id_host">主催者</label>
         </div>
         <div class="form-floating mb-3">
@@ -26,12 +29,12 @@
             <small id="id_name_help" style="font-size: smaller;"></small>
         </div>
         <div class="row gx-1 mb-3">
-            <div class="form-floating mb-2 col-md-6">
-                <input type="text" name="start_at" id="id_start_at" class="form-control">
+            <div class="form-floating mb-2 col-sm-6">
+                <input type="text" name="start_at" id="id_start_at" class="form-control" required>
                 <label for="id_start_at">開始日時</label>
             </div>
-            <div class="form-floating mb-2 col-md-6">
-                <input type="text" name="finish_at" id="id_finish_at" class="form-control">
+            <div class="form-floating mb-2 col-sm-6">
+                <input type="text" name="finish_at" id="id_finish_at" class="form-control" required>
                 <label for="id_finish_at">終了日時</label>
             </div>
         </div>

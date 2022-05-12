@@ -1,4 +1,4 @@
-import json, time, random, string, secrets
+import json, time, random, string, secrets, math
 from unicodedata import name
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -181,7 +181,7 @@ class LeagueListView(mixins.LoginRequiredMixin, generic.ListView):
 
 class CreateLeagueView(mixins.LoginRequiredMixin, generic.CreateView):
     model = models.LeagueCategory
-    fields = ['name', 'details', ]
+    fields = ['name', 'start_at', 'finish_at', 'details']
     template_name = 'game/create_league.html'
 
     def form_valid(self, form):
@@ -190,6 +190,10 @@ class CreateLeagueView(mixins.LoginRequiredMixin, generic.CreateView):
         self.object.save()
         messages.success(self.request, '{}を登録しました。'.format(self.object.name))
         return HttpResponseRedirect(reverse('game:league_list'))
+
+    def form_invalid(self, form):
+        messages.warning(self.request, '失敗しました')
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class RankingView(generic.ListView):
@@ -220,10 +224,8 @@ class RankingView(generic.ListView):
         return context
 
 
-class ResultListView(generic.ListView):
-    model = models.Game
+class ResultListView(generic.TemplateView):
     template_name = 'game/result_list.html'
-
 
 class CheckLeagueNameAjax(mixins.LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
@@ -237,10 +239,13 @@ class CheckLeagueNameAjax(mixins.LoginRequiredMixin, generic.View):
 
 class LeagueFilterViewAjax(generic.View):
     def get(self, request, *args, **kwargs):
+        paginated_by = 10
         filter_value = int(request.GET.get('filter_type'))
         order = request.GET.get('order')
         ordering = request.GET.get('ordering')
         search_key = request.GET.get('search_key')
+        current_page = int(request.GET.get('current_page', 1))
+        last_page = request.GET.get('last', False)
         searched = models.LeagueCategory.objects.all()
         if filter_value == 2:
             searched = models.LeagueCategory.objects.filter(players=self.request.user)
@@ -259,15 +264,45 @@ class LeagueFilterViewAjax(generic.View):
         leagues = []
         for obj in searched:
             leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
-        return JsonResponse(leagues, safe=False)
+        max_page = math.ceil(len(leagues) / paginated_by)
+        if last_page: current_page = max_page
+        start = paginated_by * (current_page - 1)
+        end = paginated_by * current_page
+        res = {
+            'leagues': leagues[start:end],
+            'max_page': max_page,
+            'current_page': current_page,
+            'filter_type': filter_value,
+            'order': order,
+            'ordering': ordering,
+            'search_key': search_key
+        }
+        return JsonResponse(res, safe=False)
 
-class SearchViewAjax(generic.View):
+class GetGameAjaxView(generic.View):
     def get(self, request, *args, **kwargs):
-        search_key = request.GET.get('search_key')
-        leagues = []
-        searched = models.LeagueCategory.objects.all()
+        paginated_by = 8
+        search_key = request.GET.get('search_key', '')
+        current_page = int(request.GET.get('current_page', 1))
+        last_page = request.GET.get('last')
+        games = []
+        searched = models.Game.objects.all().order_by('-start_at')
         if search_key != '':
-            searched = models.LeagueCategory.objects.filter(name__icontains=search_key).distinct()
+            searched = searched.filter(
+                Q(player1__username__icontains=search_key)|
+                Q(player2__username__icontains=search_key)|
+                Q(league__name__icontains=search_key)
+            ).distinct()
         for obj in searched:
-            leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
-        return JsonResponse(leagues, safe=False)
+            games.append(view_models.GameMapper(obj).as_dict())
+        max_page = math.ceil(len(games) / paginated_by)
+        if last_page: current_page = max_page
+        start = paginated_by * (current_page - 1)
+        end = paginated_by * current_page
+        res = {
+            'games': games[start:end],
+            'max_page': max_page,
+            'current_page': current_page
+        }
+        return JsonResponse(res, safe=False)
+

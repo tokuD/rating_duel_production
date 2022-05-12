@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-
+{% load game %}
 
 {% block title %}
     結果一覧
@@ -8,104 +8,222 @@
 
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row g-2 justify-content-start">
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card px-0 text-center shadow">
-                <div class="card-header px-0 py-1">
-                    League name
-                </div>
-                <div class="card-body pb-1 px-0">
-                    <div class="card-text">
-                        <div class="row mb-1 mx-0">
-                            <div class="col-5 text-end">hoge</div>
-                            <div class="col-2">VS</div>
-                            <div class="col-5 text-start">fuga</div>
-                        </div>
-                        <div class="row mb-2 mx-0">
-                            <div class="col-5 text-end text-success fw-bold">W</div>
-                            <div class="col-2">-</div>
-                            <div class="col-5 text-start text-danger fw-bold">L</div>
-                        </div>
-                        <small class="text-muted">2022/11/28 12:00</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card px-0 text-center shadow">
-                <div class="card-header px-0 py-1">
-                    League name
-                </div>
-                <div class="card-body pb-1 px-0">
-                    <div class="card-text">
-                        <div class="row mb-1 mx-0">
-                            <div class="col-5 text-end">hoge</div>
-                            <div class="col-2">VS</div>
-                            <div class="col-5 text-start">fuga</div>
-                        </div>
-                        <div class="row mb-2 mx-0">
-                            <div class="col-5 text-end text-success fw-bold">W</div>
-                            <div class="col-2">-</div>
-                            <div class="col-5 text-start text-danger fw-bold">L</div>
-                        </div>
-                        <small class="text-muted">2022/11/28 12:00</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card px-0 text-center shadow">
-                <div class="card-header px-0 py-1">
-                    League name
-                </div>
-                <div class="card-body pb-1 px-0">
-                    <div class="card-text">
-                        <div class="row mb-1 mx-0">
-                            <div class="col-5 text-end">hoge</div>
-                            <div class="col-2">VS</div>
-                            <div class="col-5 text-start">fuga</div>
-                        </div>
-                        <div class="row mb-2 mx-0">
-                            <div class="col-5 text-end text-success fw-bold">W</div>
-                            <div class="col-2">-</div>
-                            <div class="col-5 text-start text-danger fw-bold">L</div>
-                        </div>
-                        <small class="text-muted">2022/11/28 12:00</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+<div class="container-fluid mb-3">
+    <div class="row g-4 justify-content-start" id="parent">
     </div>
 </div>
 
 <!-- *TEMPLATE -->
-<div class="col-md-6 col-lg-4 d-none">
+<div class="col-lg-6 d-none" id="template">
     <div class="card px-0 text-center shadow">
         <div class="card-header px-0">
-            League name
         </div>
         <div class="card-body pb-1 px-0 py-1">
             <div class="card-text">
                 <div class="row mb-1 mx-0">
-                    <div class="col-5 text-end">hoge</div>
+                    <div class="col-5 text-end" id="player1"></div>
                     <div class="col-2">VS</div>
-                    <div class="col-5 text-start">fuga</div>
+                    <div class="col-5 text-start" id="player2"></div>
                 </div>
                 <div class="row mb-2 mx-0">
-                    <div class="col-5 text-end text-success fw-bold">W</div>
+                    <div class="col-5 text-end fw-bold" id="result1"></div>
                     <div class="col-2">-</div>
-                    <div class="col-5 text-start text-danger fw-bold">L</div>
+                    <div class="col-5 text-start fw-bold" id="result2"></div>
                 </div>
-                <small class="text-muted">2022/11/28 12:00</small>
+                <small class="text-muted"></small>
             </div>
         </div>
     </div>
 </div>
 <!-- */TEMPLATE -->
 
+<!-- *PAGINATION -->
+<nav class="d-flex justify-content-center">
+    <ul class="pagination pagination-sm" id="pagination_ul">
+        <li class="page-item"><a class="page-link" id="first_page">&laquo;</a></li>
+        <li class="page-item"><a id="last_page" class="page-link">&raquo;</a></li>
+    </ul>
+</nav>
+
+<li class="page-item d-none" id='pagination_template'>
+    <a class="page-link page-num">4</a>
+</li>
+<!-- */PAGINATION  -->
+
+
 {% endblock content %}
+
+
+{% block extra_js %}
+    <script>
+
+        const parent = document.getElementById('parent');
+        const template = document.getElementById('template');
+        const pagination_ul = document.getElementById('pagination_ul');
+        const pagination_template = document.getElementById('pagination_template');
+
+        document.getElementById('first_page').addEventListener('click', (e)=>{
+            e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "{% url 'game:get_game_ajax' %}",
+                            dataType: "json",
+                            data: {
+                                'search_key': $("input[name='search_key']").val(),
+                                'current_page': 1,
+                            },
+                            success: function(data){
+                                set_games(data['games']);
+                                reset_pagination(data['max_page'], data['current_page']);
+                            }
+                        });
+        });
+
+        document.getElementById('last_page').addEventListener('click', (e)=>{
+            e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "{% url 'game:get_game_ajax' %}",
+                            dataType: "json",
+                            data: {
+                                'search_key': $("input[name='search_key']").val(),
+                                'current_page': 1,
+                                'last': true,
+                            },
+                            success: function(data){
+                                set_games(data['games']);
+                                reset_pagination(data['max_page'], data['current_page']);
+                            }
+                        });
+        });
+
+        function reset_pagination(max_page, current_page){
+            const page_nums = document.querySelectorAll('.page-num');
+            page_nums.forEach((page_num)=>{
+                page_num.remove();
+            });
+            if(max_page <= 5){
+                for(let i=1; i<=max_page; i++){
+                    const clone = pagination_template.cloneNode();
+                    const a = document.createElement('a');
+                    a.classList.add('page-link', 'page-num');
+                    a.textContent = i;
+                    a.addEventListener('click', (e)=>{
+                        e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "{% url 'game:get_game_ajax' %}",
+                            dataType: "json",
+                            data: {
+                                'search_key': $("input[name='search_key']").val(),
+                                'current_page': i,
+                            },
+                            success: function(data){
+                                set_games(data['games']);
+                                reset_pagination(data['max_page'], data['current_page']);
+                            }
+                        });
+                    });
+                    clone.append(a);
+                    clone.classList.remove('d-none');
+                    if(i === current_page) clone.classList.add('active');
+                    pagination_ul.insertBefore(clone, pagination_ul.lastElementChild);
+                }
+            }
+            else{
+                const start = Math.max(current_page-2, 1);
+                const end = Math.min(current_page+2, max_page);
+                if(current_page-2 > 1){
+                    const clone = pagination_template.cloneNode();
+                    const a = document.createElement('a');
+                    a.classList.add('page-link', 'page-num');
+                    a.innerHTML = '&middot;&middot;&middot;';
+                    clone.append(a);
+                    clone.classList.remove('d-none');
+                    pagination_ul.insertBefore(clone, pagination_ul.lastElementChild);
+                }
+                for(let i=start; i<=end; i++){
+                    const clone = pagination_template.cloneNode();
+                    const a = document.createElement('a');
+                    a.classList.add('page-link', 'page-num');
+                    a.textContent = i;
+                    a.addEventListener('click', (e)=>{
+                        e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "{% url 'game:get_game_ajax' %}",
+                            dataType: "json",
+                            data: {
+                                'search_key': $("input[name='search_key']").val(),
+                                'current_page': i,
+                            },
+                            success: function(data){
+                                set_games(data['games']);
+                                reset_pagination(data['max_page'], data['current_page']);
+                            }
+                        });
+                    });
+                    clone.append(a);
+                    clone.classList.remove('d-none');
+                    if(i === current_page) clone.classList.add('active');
+                    pagination_ul.insertBefore(clone, pagination_ul.lastElementChild);
+                }
+                if(current_page+2 < max_page){
+                    const clone = pagination_template.cloneNode();
+                    const a = document.createElement('a');
+                    a.classList.add('page-link', 'page-num');
+                    a.innerHTML = '&middot;&middot;&middot;';
+                    clone.append(a);
+                    clone.classList.remove('d-none');
+                    pagination_ul.insertBefore(clone, pagination_ul.lastElementChild);
+                }
+            }
+        }
+
+        function get_games_ajax(){
+            $.ajax({
+                type: "get",
+                url: "{% url 'game:get_game_ajax' %}",
+                dataType: "json",
+                data: {
+                    'search_key': $("input[name='search_key']").val(),
+                },
+                success: function(data){
+                    set_games(data['games']);
+                    reset_pagination(data['max_page'], data['current_page'])
+                }
+            })
+        }
+
+        function set_games(games){
+            while(parent.firstChild) parent.removeChild(parent.firstChild);
+            games.forEach((game)=>{
+                const clone = template.cloneNode(true);
+                clone.removeAttribute("id");
+                clone.classList.remove('d-none');
+                clone.querySelector(".card-header").textContent = game['league'];
+                clone.querySelector("#player1").textContent = game['player1'];
+                clone.querySelector("#player2").textContent = game['player2'];
+                clone.querySelector("#result1").textContent = game['result1'];
+                if(game['result1']=='WIN') clone.querySelector('#result1').classList.add('text-success');
+                else if(game['result1']=='LOOSE') clone.querySelector('#result1').classList.add('text-danger');
+                else clone.querySelector('#result1').classList.add('text-secondary');
+                clone.querySelector("#result2").textContent = game['result2'];
+                if(game['result2']=='WIN') clone.querySelector('#result2').classList.add('text-success');
+                else if(game['result2']=='LOOSE') clone.querySelector('#result2').classList.add('text-danger');
+                else clone.querySelector('#result2').classList.add('text-secondary');
+                clone.querySelector("small").textContent = game['start_at'];
+                parent.append(clone);
+            });
+        }
+
+        $(function(){
+            get_games_ajax();
+        });
+
+        $("#search_btn").click(function(e){
+            e.preventDefault();
+            get_games_ajax();
+        })
+    </script>
+{% endblock extra_js %}

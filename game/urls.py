@@ -12,9 +12,9 @@ urlpatterns = [
     path('league_list/', views.LeagueListView.as_view(), name='league_list'),
     path('create_league/', views.CreateLeagueView.as_view(), name='create_league'),
     path('<str:league_name>/ranking/', views.RankingView.as_view(), name='ranking'),
-    path('<str:league_name>/result_list/', views.ResultListView.as_view(), name='result_list'),
+    path('result_list/', views.ResultListView.as_view(), name='result_list'),
     path('check_league_name_ajax/', views.CheckLeagueNameAjax.as_view(), name='check_league_name_ajax'),
     path('league_filter_ajax/', views.LeagueFilterViewAjax.as_view(), name='league_filter_ajax'),
-    path('search_league_list_ajax/', views.SearchViewAjax.as_view(), name='search_league_list_ajax'),
+    path('get_game_ajax/', views.GetGameAjaxView.as_view(), name='get_game_ajax'),
     path('', views.HomeView.as_view(), name='home'),
 ]
