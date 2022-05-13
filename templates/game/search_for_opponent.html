@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="alert alert-info collapse p-1" id="failed_message">
-    <span>対戦相手が見つかりませんでした。</span>
+    <!-- <span>対戦相手が見つかりませんでした。</span> -->
 </div>
 <h2>対戦相手を探す</h2>
 <small class="text-muted" id="dp_display">
@@ -24,11 +24,10 @@
         </select>
     </div>
     <button class="btn btn-primary" id="search_for_opponent" type="submit">対戦相手を探す</button>
+    <button class="btn btn-danger collapse" id="cancel_btn" type="submit">キャンセル</button>
 </form>
 <p class="text-muted" id="matching_message"></p>
-<div class="spinner-border collapse mb-3" id="spinner" role="status">
-    <span class="visually-hidden">Loading...</span>
-</div>
+
 
 {% endblock content %}
 
@@ -36,7 +35,7 @@
 {% block extra_js %}
 <script src="{% static 'js/for_ajax_csrf.js' %}"></script>
 <script>
-
+    const failed_message = document.getElementById('failed_message');
     function search_for_opponent(){
         $.ajax({
             type: "post",
@@ -50,23 +49,58 @@
                 const roomName = data['roomname'];
                 console.log(data['roomname']);
                 $("#matching_message").text("");
-                $("#spinner").removeClass('show');
                 if(!is_success){
-                    $("#failed_message").addClass('show');
+                    const message = data['message'];
+                    failed_message.classList.add("show");
+                    failed_message.innerHTML = "<span>" + message + "</span>";
+                    $("#cancel_btn").removeClass('show');
+                    $("#search_for_opponent").removeClass('collapse');
+                    clearInterval(timerId);
                 }
                 else{
                     window.location.pathname = 'game/' + "{{ league_name }}" + '/room/' + roomName + '/';
+                    console.log("{% url 'game:room' league_name 123456 %}".replace(/123456/, roomName));
                 }
             }
         });
     }
 
+    function cancel(){
+        $.ajax({
+            type: "post",
+            url: "{% url 'game:cancel_ajax' league_name %}",
+            dataType: "json",
+            data: {
+            },
+            success: function(data){
+                console.log(data['message']);
+            }
+        })
+    }
+
+    let timerId = null;
+    function display_time(start_time=30){
+        document.getElementById('matching_message').textContent = "対戦相手を探しています... 00:" + start_time;
+        if(start_time===0) clearInterval(timerId);
+        timerId = setTimeout(display_time, 1000, start_time - 1);
+    }
+
     $("#search_for_opponent").click(function(e){
         e.preventDefault();
+        $(this).addClass('collapse');
         $("#failed_message").removeClass('show');
-        $("#matching_message").text("対戦相手を探しています...");
-        $("#spinner").addClass('show');
+        $("#cancel_btn").addClass("show");
+        display_time();
         search_for_opponent();
+    });
+
+    $("#cancel_btn").click(function(e){
+        e.preventDefault();
+        $(this).removeClass('show');
+        $("#search_for_opponent").removeClass('collapse');
+        cancel();
+        $("#matching_message").text("");
+        clearInterval(timerId);
     });
 </script>
 {% endblock extra_js %}

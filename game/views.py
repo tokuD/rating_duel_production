@@ -36,6 +36,15 @@ class SearchForOpponentView(mixins.LoginRequiredMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         return HttpResponseRedirect(reverse('game:search_for_opponent'))
 
+class CancelAjaxView(mixins.LoginRequiredMixin, generic.View):
+    def post(self, request, *args, **kwargs):
+        league_name = self.kwargs.get('league_name')
+        self.league = models.LeagueCategory.objects.get(name=league_name)
+        try:
+            models.WaitingPlayer.objects.get(player=self.request.user, league=self.league).delete()
+        except models.WaitingPlayer.DoesNotExist:
+            pass
+        return JsonResponse({'message': "対戦を中止しました"})
 
 
 class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
@@ -43,13 +52,17 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
     dp_diff = 40000 #! 期待勝率が10倍になるであろうdp差
 
     def post(self, request, *args, **kwargs):
+        self.start_time = time.time()
         league_name = self.kwargs.get('league_name')
         self.league = models.LeagueCategory.objects.get(name=league_name)
         self.dp = models.ResultTable.objects.get(player=self.request.user, league=self.league).dp
         models.WaitingPlayer.objects.get_or_create(player=self.request.user, league=self.league, dp=self.dp)
         opponent = self.search_for_opponent(0)
         if opponent == 'matched':
-            game = models.Game.objects.filter(player2=self.request.user, league=self.league).order_by('-start_at')[0]
+            try:
+                game = models.Game.objects.exclude(submitted_players=self.request.user).get(player2=self.request.user, league=self.league)
+            except models.Game.DoesNotExist:
+                return JsonResponse({"message": "対戦を中止しました"})
             messages.success(self.request, "対戦相手が決定しました!")
             return JsonResponse({"is_success": True, "roomname": game.room})
         elif opponent:
@@ -75,18 +88,18 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
             messages.success(self.request, "対戦相手が決定しました!")
             return JsonResponse({"is_success": True, "roomname": game.room})
         else:
-            return JsonResponse({"is_success": False, "roomname": None})
+            return JsonResponse({"is_success": False, "roomname": None, 'message': '対戦相手が見つかりませんでした'})
 
     def search_for_opponent(self, count):
         if not models.WaitingPlayer.objects.filter(player=self.request.user, league=self.league).exists():
             return 'matched'
-        if count == 20:
+        if time.time() - self.start_time >= 30.0:
             models.WaitingPlayer.objects.filter(player=self.request.user, league=self.league).delete()
             return False
         lowwer_dp, upper_dp = self.dp - self.matching_range, self.dp + self.matching_range
         opponent_candidates = models.WaitingPlayer.objects.filter(league=self.league, dp__gte=lowwer_dp, dp__lte=upper_dp).exclude(player=self.request.user).distinct()
         if not opponent_candidates.exists():
-            time.sleep(1)
+            time.sleep(0.5)
             return self.search_for_opponent(count+1)
         ind = random.randint(0, opponent_candidates.count()-1)
         opponent = opponent_candidates[ind]
@@ -95,7 +108,6 @@ class SearchForOpponentAjaxView(mixins.LoginRequiredMixin, generic.View):
     def generate_room(self):
         alphabet = string.ascii_letters + string.digits
         return ''.join(secrets.choice(alphabet) for _ in range(10))
-
 
 
 class RoomView(mixins.LoginRequiredMixin, generic.TemplateView):
