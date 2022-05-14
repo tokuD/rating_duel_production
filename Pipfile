@@ -10,6 +10,7 @@ channels = "*"
 channels-redis = "*"
 daphne = "*"
 psycopg2 = "*"
+gunicorn = "*"
 
 [dev-packages]
 
