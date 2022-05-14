@@ -180,13 +180,16 @@
             }
         }
 
-        function get_games_ajax(){
+        function get_games_ajax(from="header"){
+            let search_key = '';
+            if(from==="offcanvas") search_key = $("input[name='offcanvas_search_key']").val();
+            else search_key = $("input[name='search_key']").val();
             $.ajax({
                 type: "get",
                 url: "{% url 'game:get_game_ajax' %}",
                 dataType: "json",
                 data: {
-                    'search_key': $("input[name='search_key']").val(),
+                    'search_key': search_key,
                 },
                 success: function(data){
                     set_games(data['games']);
@@ -224,6 +227,12 @@
         $("#search_btn").click(function(e){
             e.preventDefault();
             get_games_ajax();
-        })
+        });
+
+        $("#offcanvas_search_btn").click(function(e){
+            e.preventDefault();
+            get_games_ajax("offcanvas");
+            $("#offcanvas_close_btn").click();
+        });
     </script>
 {% endblock extra_js %}

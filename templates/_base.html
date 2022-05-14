@@ -30,7 +30,7 @@
                         <li class="navbar-item mb-3"><a href="{% url 'game:home' %}" class="nav-link"><h2>Rating Duel</h2></a></li>
                         <li class="navbar-item mb-1">
                             <a href="#collapseGame" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-trophy"></i>&ThickSpace; 試合</a>
-                            <div class="collapse" id="collapseGame">
+                            <div class="collapse show" id="collapseGame">
                                 <ul>
                                     <li><a href="{% url 'game:league_list' %}" class="nav-link">リーグ一覧</a></li>
                                     <li><a href="{% url 'game:create_league' %}" class="nav-link">リーグ開催</a></li>
@@ -39,7 +39,7 @@
                         </li>
                         <li class="navbar-item mb-1">
                             <a href="#collapseData" data-bs-toggle="collapse" class="nav-link"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
-                            <div class="collapse" id="collapseData">
+                            <div class="collapse show" id="collapseData">
                                 <ul>
                                     <li><a href="{% url 'game:result_list' %}" class="nav-link">結果一覧</a></li>
                                 </ul>
@@ -52,13 +52,17 @@
                 <div class="offcanvas offcanvas-start w-75 bg-dark" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
                     <div class="offcanvas-header">
                         <h5 class="offcanvas-title nav-link" id="offcanvasExampleLabel"><a href="{% url 'game:home' %}" class="text-light" style="text-decoration: none;">Rating Duel</a></h5>
-                        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close" id="offcanvas_close_btn"></button>
                     </div>
                     <div class="offcanvas-body">
+                        <form action="" class="input-group mb-3" id="offcanvas_search_form">
+                            <input type="search" name="offcanvas_search_key" placeholder="Search..." value="{{ search_key }}" class="form-control">
+                            <button type="submit" id="offcanvas_search_btn" class="input-group-text btn btn-outline-light"><i class="bi bi-search"></i>&ThickSpace;検索</button>
+                        </form>
                         <ul class="px-0 list-unstyled">
                             <li class="navbar-item mb-1">
                                 <a href="#offcanvasGame" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-trophy"></i>&ThickSpace; 試合</a>
-                                <div class="collapse" id="offcanvasGame">
+                                <div class="collapse show" id="offcanvasGame">
                                     <ul>
                                         <li><a href="{% url 'game:league_list' %}" class="nav-link text-light">リーグ一覧</a></li>
                                         <li><a href="{% url 'game:create_league' %}" class="nav-link text-light">リーグ開催</a></li>
@@ -67,7 +71,7 @@
                             </li>
                             <li class="navbar-item mb-1">
                                 <a href="#offcanvasData" data-bs-toggle="collapse" class="nav-link text-light"><i class="bi bi-bar-chart-line"></i>&ThickSpace; データ</a>
-                                <div class="collapse" id="offcanvasData">
+                                <div class="collapse show" id="offcanvasData">
                                     <ul>
                                         <li><a href="{% url 'game:result_list' %}" class="nav-link text-light">結果一覧</a></li>
                                     </ul>

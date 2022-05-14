@@ -217,7 +217,49 @@ class CreateResultTableView(mixins.LoginRequiredMixin, generic.CreateView):
 class LeagueListView(mixins.LoginRequiredMixin, generic.ListView):
     template_name = 'game/league_list.html'
     model = models.LeagueCategory
-    paginate_by = 10
+
+class LeagueFilterViewAjax(generic.View):
+    def get(self, request, *args, **kwargs):
+        paginated_by = 10
+        filter_value = int(request.GET.get('filter_type'))
+        order = request.GET.get('order')
+        ordering = request.GET.get('ordering')
+        search_key = request.GET.get('search_key')
+        current_page = int(request.GET.get('current_page', 1))
+        last_page = request.GET.get('last', False)
+        searched = models.LeagueCategory.objects.all()
+        if filter_value == 2:
+            searched = models.LeagueCategory.objects.filter(players=self.request.user)
+        elif filter_value == 3:
+            searched = models.LeagueCategory.objects.filter(start_at__lte=timezone.now(), finish_at__gte=timezone.now())
+        elif filter_value == 4:
+            searched = models.LeagueCategory.objects.filter(finish_at__lte=timezone.now())
+        if search_key != '':
+            searched = searched.filter(name__icontains=search_key)
+        if ordering == 'lower':
+            if order == 'created_at': searched = searched.order_by('-created_at')
+            else: searched = searched.order_by('-participants')
+        else:
+            if order == 'created_at': searched = searched.order_by('created_at')
+            else: searched = searched.order_by('participants')
+        leagues = []
+        for obj in searched:
+            leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
+        max_page = math.ceil(len(leagues) / paginated_by)
+        if last_page: current_page = max_page
+        start = paginated_by * (current_page - 1)
+        end = paginated_by * current_page
+        res = {
+            'leagues': leagues[start:end],
+            'max_page': max_page,
+            'current_page': current_page,
+            'filter_type': filter_value,
+            'order': order,
+            'ordering': ordering,
+            'search_key': search_key,
+        }
+        return JsonResponse(res, safe=False)
+
 
 
 class CreateLeagueView(mixins.LoginRequiredMixin, generic.CreateView):
@@ -296,47 +338,6 @@ class CheckLeagueNameAjax(mixins.LoginRequiredMixin, generic.View):
         return JsonResponse({"help_text": "使用可能です", "is_ok": True})
 
 
-class LeagueFilterViewAjax(generic.View):
-    def get(self, request, *args, **kwargs):
-        paginated_by = 10
-        filter_value = int(request.GET.get('filter_type'))
-        order = request.GET.get('order')
-        ordering = request.GET.get('ordering')
-        search_key = request.GET.get('search_key')
-        current_page = int(request.GET.get('current_page', 1))
-        last_page = request.GET.get('last', False)
-        searched = models.LeagueCategory.objects.all()
-        if filter_value == 2:
-            searched = models.LeagueCategory.objects.filter(players=self.request.user)
-        elif filter_value == 3:
-            searched = models.LeagueCategory.objects.filter(start_at__lte=timezone.now(), finish_at__gte=timezone.now())
-        elif filter_value == 4:
-            searched = models.LeagueCategory.objects.filter(finish_at__lte=timezone.now())
-        if search_key != '':
-            searched = searched.filter(name__icontains=search_key)
-        if ordering == 'lower':
-            if order == 'created_at': searched = searched.order_by('-created_at')
-            else: searched = searched.order_by('-participants')
-        else:
-            if order == 'created_at': searched = searched.order_by('created_at')
-            else: searched = searched.order_by('participants')
-        leagues = []
-        for obj in searched:
-            leagues.append(view_models.LeagueCategoryMapper(obj).as_dict())
-        max_page = math.ceil(len(leagues) / paginated_by)
-        if last_page: current_page = max_page
-        start = paginated_by * (current_page - 1)
-        end = paginated_by * current_page
-        res = {
-            'leagues': leagues[start:end],
-            'max_page': max_page,
-            'current_page': current_page,
-            'filter_type': filter_value,
-            'order': order,
-            'ordering': ordering,
-            'search_key': search_key
-        }
-        return JsonResponse(res, safe=False)
 
 class GetGameAjaxView(generic.View):
     def get(self, request, *args, **kwargs):

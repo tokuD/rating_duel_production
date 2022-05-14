@@ -221,8 +221,9 @@
                 clone.querySelector(".accordion-button").setAttribute("data-bs-target", "#" + league['name'].replace(/ /, '___'));
                 clone.querySelector(".accordion-collapse").id = league['name'].replace(/ /, '___');
                 clone.querySelector(".card-text").innerHTML = league['details'].replace(/\r\n/g, "<br>");
-                clone.querySelector("small").textContent = "主催者：" + league['host'];
+                clone.querySelector("small").innerHTML = "<p class='lh-sm mb-0'>期間：" + league['start_at'] + "&ThickSpace;-&ThickSpace;" + league['finish_at'] + "<br>主催者：" + league['host'] + "</p>";
                 clone.querySelector("#participate").setAttribute("href", "{% url 'game:search_for_opponent' 123456 %}".replace(/123456/, league['name']));
+                if(!league['can_participate']) clone.querySelector("#participate").classList.add("disabled");
                 clone.querySelector("#ranking").setAttribute("href", "{% url 'game:ranking' 123456 %}".replace(/123456/, league['name']));
                 parent.append(clone);
             })
@@ -233,7 +234,7 @@
         }
 
 
-        function filter_leagues(){
+        function filter_leagues(from="header"){
             const types = document.getElementsByName('league_filter');
             var type = '';
             types.forEach((t)=>{
@@ -249,7 +250,9 @@
             orderings.forEach((o)=>{
                 if(o.checked) ordering = o.value;
             });
-            console.log(type,order, ordering)
+            let search_key = '';
+            if(from==="offcanvas") search_key = $("input[name='offcanvas_search_key']").val();
+            else search_key = $("input[name='search_key']").val();
             $.ajax({
                 type: "get",
                 url: "{% url 'game:league_filter_ajax' %}",
@@ -258,7 +261,7 @@
                     'filter_type': type,
                     'order': order,
                     'ordering': ordering,
-                    'search_key': $("input[name='search_key']").val(),
+                    'search_key': search_key,
                     'current_page': 1,
                 },
                 success: function(data){
@@ -283,6 +286,13 @@
 
         $("#search_btn").click(function(e){
             e.preventDefault();
+            filter_leagues();
+        });
+
+        $("#offcanvas_search_btn").click(function(e){
+            e.preventDefault();
+            filter_leagues("offcanvas");
+            $("#offcanvas_close_btn").click();
         });
 
         $(function(){
