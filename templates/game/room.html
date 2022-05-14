@@ -145,7 +145,9 @@
 
 {% block extra_js %}
 <script>
-    const ws = new WebSocket('ws://' + window.location.host + '/ws/game/room/{{ room_name }}/');
+    let ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    //const ws = new WebSocket('ws://' + window.location.host + '/ws/game/room/{{ room_name }}/');
+    const ws = new WebSocket(ws_scheme + '://' + window.location.host + ":8001/ws/game/room/{{ room_name }}/");;
 
     ws.onopen = function(e){
         ws.send(JSON.stringify({

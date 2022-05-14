@@ -11,6 +11,9 @@ channels-redis = "*"
 daphne = "*"
 psycopg2 = "*"
 gunicorn = "*"
+python-decouple = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 
